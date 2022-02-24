@@ -22,6 +22,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 
 
 public class MainApp extends Application {
@@ -31,6 +32,8 @@ public class MainApp extends Application {
     public static ArrayList<String> JPLControls;
     public static ArrayList<String> AugerControls;
     public static boolean controlsOpen = false;
+    public static boolean notSelected = true;
+    public static String selectedRobotButtonStyle = "-fx-text-fill: black;" + "-fx-background-color: red;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;";
     @Override
     public void start(Stage primaryStage) {
 
@@ -45,7 +48,13 @@ public class MainApp extends Application {
     }
     public static Scene openScreen() {
         ImageView landingImgView = new ImageView();
-        Image landingImg = new Image("C:\\Users\\Gemma\\IdeaProjects\\Robotics_SD_ControlGUI\\Temple_Robotics_Landing.png");
+        String currentDir = System.getProperty("user.dir");
+        System.out.println(currentDir);
+        //Image image = new Image(App2.display,this.getClass().getResourceAsStream("search.jpg"));
+        //File landingIMG = new File("/Temple_Robotics_Landing.png");
+        //Image landingImg = new Image(currentDir + "/src/main/java/com.example.robotics_sd_controlgui/Temple_Robotics_Landing.PNG");
+
+        Image landingImg = new Image("file:Temple_Robotics_Landing.PNG");
         landingImgView.setImage(landingImg);
         BorderPane bp = new BorderPane();
         bp.setCenter(landingImgView);
@@ -77,8 +86,18 @@ public class MainApp extends Application {
         hb.getChildren().add(selectBot);
         hb.setAlignment(Pos.CENTER);
         bp.setTop(hb);
-        bp.setCenter(createRobotButtons());
-        return new Scene(bp, 400, 400);
+        VBox userButtons = createUserButtons();
+        userButtons.setVisible(false);
+        bp.setRight(userButtons);
+        bp.setLeft(createRobotButtons(userButtons));
+        Button selectNewBot = new Button("Select new bot");
+        bp.setBottom(selectNewBot);
+        selectNewBot.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent actionEvent){
+                bp.setLeft(createRobotButtons(userButtons));
+            }
+        });
+        return new Scene(bp, 400, 600);
     }
     public static Scene TabScene() {
 
@@ -194,54 +213,37 @@ public class MainApp extends Application {
         openWindow.setTitle("Augerbot User Selection");
         return newScene;
     }
-    public static VBox createRobotButtons(){
+    public static VBox createRobotButtons(VBox userButtons){
         VBox vb = new VBox();
         Button JPLButton = new Button("JPL");
         JPLButton.setPrefWidth(200);
-        JPLButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 3 3 3 3;");
+        JPLButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         JPLButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
-        hoverEnlarge(JPLButton);
-        JPLButton.setOnAction(new EventHandler<ActionEvent>(){
-            public void handle(ActionEvent t){
-                System.out.println("JPL Button is pressed");
-                robotChosen = chosenBot(JPLButton);
-                choseUser();
-            }
-        });
+        hoverEnlargeRobotButtons(JPLButton, userButtons);
+
         Button Lunabotics2022Button = new Button("Lunabotics 2022");
         Lunabotics2022Button.setPrefWidth(200);
-        Lunabotics2022Button.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 3 3 3 3;");
+        Lunabotics2022Button.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         Lunabotics2022Button.setFont(Font.font("boulder", FontWeight.BOLD, 20));
-        hoverEnlarge(Lunabotics2022Button);
-        Lunabotics2022Button.setOnAction(new EventHandler<ActionEvent>(){
-            public void handle(ActionEvent t){
-                System.out.println("Lunabotics2022 Button is pressed");
-                robotChosen = chosenBot(Lunabotics2022Button);
-                choseUser();
-            }
-        });
+        hoverEnlargeRobotButtons(Lunabotics2022Button, userButtons);
+
         Button AugerButton = new Button("Augerbot");
         AugerButton.setPrefWidth(200);
-        AugerButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 3 3 3 3;");
+        AugerButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         AugerButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
-        hoverEnlarge(AugerButton);
-        AugerButton.setOnAction(new EventHandler<ActionEvent>(){
-            public void handle(ActionEvent t){
-                System.out.println("Augerbot Button is pressed");
-                robotChosen = chosenBot(AugerButton);
-                choseUser();
-            }
-        });
+        hoverEnlargeRobotButtons(AugerButton, userButtons);
+
         vb.getChildren().addAll(JPLButton, Lunabotics2022Button, AugerButton);
         vb.setAlignment(Pos.CENTER);
         vb.setSpacing(30);
         return vb;
     }
-    public static HBox createUserButtons(){
+    public static VBox createUserButtons(){
         Stage openWindow = new Stage();
-        HBox hbox = new HBox();
+        VBox vbox = new VBox();
         Button DefaultButton = new Button("Default");
         DefaultButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
+        DefaultButton.setPrefWidth(100);
         DefaultButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         DefaultButton.setOnAction(new EventHandler<ActionEvent>(){
             public void handle(ActionEvent t){
@@ -260,6 +262,7 @@ public class MainApp extends Application {
         hoverEnlarge(DefaultButton);
         Button GemmaButton = new Button("Gemma");
         GemmaButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
+        GemmaButton.setPrefWidth(100);
         GemmaButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         GemmaButton.setOnAction(new EventHandler<ActionEvent>(){
             public void handle(ActionEvent t){
@@ -278,6 +281,7 @@ public class MainApp extends Application {
         hoverEnlarge(GemmaButton);
         Button MarkButton = new Button("Mark");
         MarkButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
+        MarkButton.setPrefWidth(100);
         MarkButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         MarkButton.setOnAction(new EventHandler<ActionEvent>(){
             public void handle(ActionEvent t){
@@ -296,6 +300,7 @@ public class MainApp extends Application {
         hoverEnlarge(MarkButton);
         Button JoeButton = new Button("Joe");
         JoeButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
+        JoeButton.setPrefWidth(100);
         JoeButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         JoeButton.setOnAction(new EventHandler<ActionEvent>(){
             public void handle(ActionEvent t){
@@ -314,6 +319,7 @@ public class MainApp extends Application {
         hoverEnlarge(JoeButton);
         Button BrianButton = new Button("Brian");
         BrianButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
+        BrianButton.setPrefWidth(100);
         BrianButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         BrianButton.setOnAction(new EventHandler<ActionEvent>(){
             public void handle(ActionEvent t){
@@ -332,6 +338,7 @@ public class MainApp extends Application {
         hoverEnlarge(BrianButton);
         Button IsabelButton = new Button("Isabel");
         IsabelButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
+        IsabelButton.setPrefWidth(100);
         IsabelButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         IsabelButton.setOnAction(new EventHandler<ActionEvent>(){
             public void handle(ActionEvent t){
@@ -366,11 +373,12 @@ public class MainApp extends Application {
         hoverEnlarge(KevinButton);
         KevinButton.setFont(Font.font("boulder", FontWeight.BOLD, 20));
         KevinButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
-        hbox.getChildren().addAll(DefaultButton, GemmaButton, MarkButton, JoeButton, BrianButton, IsabelButton, KevinButton);
-        hbox.setAlignment(Pos.CENTER);
-        hbox.setSpacing(30);
-        hbox.setStyle("-fx-background-color: black");
-        return hbox;
+        KevinButton.setPrefWidth(100);
+        vbox.getChildren().addAll(DefaultButton, GemmaButton, MarkButton, JoeButton, BrianButton, IsabelButton, KevinButton);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setSpacing(30);
+        vbox.setStyle("-fx-background-color: black");
+        return vbox;
     }
     public static Scene controlScene(){
         controlsOpen = true;
@@ -396,7 +404,7 @@ public class MainApp extends Application {
         bp.setTop(hb);
 
         ImageView img1 = new ImageView();
-        Image controlImg = new Image("C:\\Users\\Gemma\\IdeaProjects\\Robotics_SD_ControlGUI\\xbox_controller_config.jpg");
+        Image controlImg = new Image("file:xbox_controller_config.jpg");
         img1.setImage(controlImg);
         bp.setCenter(img1);
         bp.setRight(createControlBind());
@@ -432,9 +440,9 @@ public class MainApp extends Application {
         button.setOnMouseEntered(new EventHandler<MouseEvent>() {     //enlarge when mouse hovered
             @Override
             public void handle(MouseEvent mouseEvent) {
-                button.setScaleX(1.5);
-                button.setScaleY(1.5);
-                button.setStyle("-fx-text-fill: black;" + "-fx-background-color: red;" + "-fx-border-color:white;" + "-fx-border-width: 2 2 2 2;");
+                button.setScaleX(1.15);
+                button.setScaleY(1.15);
+                button.setStyle("-fx-text-fill: black;" + "-fx-background-color: gray;" + "-fx-border-color:white;" + "-fx-border-width: 2 2 2 2;");
             }
         });
         button.setOnMouseExited(new EventHandler<MouseEvent>() {      //default when mouse not hovered
@@ -444,6 +452,49 @@ public class MainApp extends Application {
                 button.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
             }
         });
+    }
+    public static void hoverEnlargeRobotButtons(Button button, VBox userButtons){
+        //boolean notSelected = true;
+        String temp = robotChosen;
+        button.setOnMouseEntered(new EventHandler<MouseEvent> (){       //if hovering a button
+           public void handle(MouseEvent mouseEvent){
+               if(button.getStyle() != selectedRobotButtonStyle) {
+
+                   System.out.println("mouse entered for a robot button");
+                   button.setScaleX(1.15);
+                   button.setScaleY(1.15);
+                   button.setStyle("-fx-text-fill: black;" + "-fx-background-color: gray;" + "-fx-border-color:white;" + "-fx-border-width: 2 2 2 2;");
+               }
+               button.setOnAction(new EventHandler<ActionEvent>() {
+                   @Override
+                   public void handle(ActionEvent actionEvent) {    //if hovering and clicked
+
+                       button.setStyle("-fx-text-fill: black;" + "-fx-background-color: red;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
+                       notSelected = false;
+                       System.out.println("setting clicked button flag as on");
+                       System.out.println(button.getText() + " button is pressed");
+                       robotChosen = chosenBot(button);
+                       //choseUser();
+                       userButtons.setVisible(true);
+                       System.out.println("Mouse is clicked for button");
+                       System.out.println(button.getBackground());
+                   }
+               });
+               }
+        });
+            button.setOnMouseExited(new EventHandler<MouseEvent>() {      //default when mouse not hovered
+                public void handle(MouseEvent e) {
+                    if (button.getStyle() == selectedRobotButtonStyle) {
+                        notSelected = false;
+                    }
+                    else {
+                        button.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
+                        button.setScaleX(1);
+                        button.setScaleY(1);
+                    }
+                }
+            });
+        System.out.println("setting no new buttons were clicked");
     }
     public static void hoverChangeColorToRed(Button button){
         button.setOnMouseEntered(new EventHandler<MouseEvent>() {     //enlarge when mouse hovered
@@ -507,20 +558,21 @@ public class MainApp extends Application {
     }
     public static void launchFRC(){
 
-            try {
+ //           try {
                 //String command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-                String command = "C:\\Program Files (x86)\\FRC Driver Station\\DriverStation.exe";
-                Runtime run = Runtime.getRuntime();
-                Process proc = run.exec(command);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+                //String command = "C:\\Program Files (x86)\\FRC Driver Station\\DriverStation.exe";
+            //    String command = "/System/Applications/Mail.app";
+              //  Runtime run = Runtime.getRuntime();
+              //  Process proc = run.exec(command);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+     }
 public static void main(String[] args) {
     launch();
     //File controlsFile = new File("C:\\Users\\Gemma\\IdeasProjects\\Robotics_SD_ControlGUI\\controlsFile.txt");
-    File file = new File("controlsFile.txt");
-    Writer writer = null;
+//    File file = new File("controlsFile.txt");
+//    Writer writer = null;
 //    if (controlsOpen == true) {
 //        for (int i = 0; i < 21; i++) {
 //            String text = JPLControls.get(i);

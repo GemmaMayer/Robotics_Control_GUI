@@ -91,13 +91,16 @@ public class MainApp extends Application {
         bp.setRight(userButtons);
         bp.setLeft(createRobotButtons(userButtons));
         Button selectNewBot = new Button("Select new bot");
-        bp.setBottom(selectNewBot);
+        Button createNewButton = new Button("Create new button");
+        HBox hbox = new HBox();
+        hbox.getChildren().addAll(createNewButton, selectNewBot);
+        bp.setBottom(hbox);
         selectNewBot.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent actionEvent){
                 bp.setLeft(createRobotButtons(userButtons));
             }
         });
-        return new Scene(bp, 400, 600);
+        return new Scene(bp, bp.getMaxWidth()+400,bp.getMaxHeight() );
     }
     public static Scene TabScene() {
 
@@ -238,6 +241,7 @@ public class MainApp extends Application {
         vb.setSpacing(30);
         return vb;
     }
+    //public static
     public static VBox createUserButtons(){
         Stage openWindow = new Stage();
         VBox vbox = new VBox();
@@ -386,8 +390,9 @@ public class MainApp extends Application {
         HBox hb = new HBox(500);
         Text sayThis = new Text(robotChosen + " for " + userChosen + ":");
         sayThis.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
-        //sayThis.setTextAlignment(TextAlignment.CENTER);
         Button backButton = new Button("Back");
+        backButton.setFont(Font.font("Boulder", FontWeight.NORMAL, 15));
+        backButton.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         backButton.setOnAction(new EventHandler<ActionEvent>(){
             public void handle(ActionEvent t){
                 controlsOpen = false;
@@ -410,10 +415,12 @@ public class MainApp extends Application {
         bp.setRight(createControlBind());
 
         Button saveBtn = new Button("Save");
+        saveBtn.setFont(Font.font("Boulder", FontWeight.NORMAL, 15));
+        saveBtn.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
         hb1.getChildren().addAll(backButton, saveBtn);
         bp.setBottom(hb1);
         bp.setStyle("-fx-background-color: black");
-        return new Scene(bp, 1000, 500);
+        return new Scene(bp, 1100, 600);
     }
     public static ComboBox createComboBox(int index, ArrayList<String> controls){
         ComboBox comboBox1 = new ComboBox();
@@ -454,47 +461,47 @@ public class MainApp extends Application {
         });
     }
     public static void hoverEnlargeRobotButtons(Button button, VBox userButtons){
-        //boolean notSelected = true;
-        String temp = robotChosen;
+
         button.setOnMouseEntered(new EventHandler<MouseEvent> (){       //if hovering a button
            public void handle(MouseEvent mouseEvent){
                if(button.getStyle() != selectedRobotButtonStyle) {
 
-                   System.out.println("mouse entered for a robot button");
+                   System.out.println("mouse entered for " + button);
                    button.setScaleX(1.15);
                    button.setScaleY(1.15);
                    button.setStyle("-fx-text-fill: black;" + "-fx-background-color: gray;" + "-fx-border-color:white;" + "-fx-border-width: 2 2 2 2;");
+
                }
                button.setOnAction(new EventHandler<ActionEvent>() {
                    @Override
                    public void handle(ActionEvent actionEvent) {    //if hovering and clicked
 
-                       button.setStyle("-fx-text-fill: black;" + "-fx-background-color: red;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
-                       notSelected = false;
-                       System.out.println("setting clicked button flag as on");
-                       System.out.println(button.getText() + " button is pressed");
-                       robotChosen = chosenBot(button);
-                       //choseUser();
-                       userButtons.setVisible(true);
-                       System.out.println("Mouse is clicked for button");
-                       System.out.println(button.getBackground());
+                           //resetRobotButtons(createRobotButtons(userButtons), userButtons);
+                            createRobotButtons(userButtons);
+                            System.out.println("resetting button styles");
+                           //reset other buttons
+                           button.setStyle("-fx-text-fill: black;" + "-fx-background-color: red;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
+                           System.out.println("setting clicked button flag as on");
+                           System.out.println(button.getText() + " button is pressed");
+                           robotChosen = chosenBot(button);
+                           userButtons.setVisible(true);
                    }
                });
                }
         });
             button.setOnMouseExited(new EventHandler<MouseEvent>() {      //default when mouse not hovered
                 public void handle(MouseEvent e) {
-                    if (button.getStyle() == selectedRobotButtonStyle) {
-                        notSelected = false;
+                    if (button.getText() == robotChosen) {
+
                     }
                     else {
+
                         button.setStyle("-fx-text-fill: white;" + "-fx-background-color: black;" + "-fx-border-color:white;" + "-fx-border-width: 1 1 1 1;");
                         button.setScaleX(1);
                         button.setScaleY(1);
                     }
                 }
             });
-        System.out.println("setting no new buttons were clicked");
     }
     public static void hoverChangeColorToRed(Button button){
         button.setOnMouseEntered(new EventHandler<MouseEvent>() {     //enlarge when mouse hovered
@@ -557,7 +564,6 @@ public class MainApp extends Application {
         return ChosenBot;
     }
     public static void launchFRC(){
-
  //           try {
                 //String command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
                 //String command = "C:\\Program Files (x86)\\FRC Driver Station\\DriverStation.exe";
